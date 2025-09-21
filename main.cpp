@@ -37,15 +37,24 @@ void init() {
 }
 
 void update(float dt) {
-	// handle paddle movement
-	float direction = 0.0f;
+	// handles paddle movement
+	float direction1 = 0.0f;
 	if (sf::Keyboard::isKeyPressed(controls[0])) {
-		direction--;
+		direction1--;
 	}
 	if (sf::Keyboard::isKeyPressed(controls[1])) {
-		direction++;
+		direction1++;
 	}
-	paddles[0].move(sf::Vector2f(0.f, direction * paddleSpeed * dt));
+	paddles[0].move(sf::Vector2f(0.f, direction1 * paddleSpeed * dt));
+
+	float direction2 = 0.0f;
+	if (sf::Keyboard::isKeyPressed(controls[2])) {
+		direction2--;
+	}
+	if (sf::Keyboard::isKeyPressed(controls[3])) {
+		direction2++;
+	}
+	paddles[1].move(sf::Vector2f(0.f, direction2 * paddleSpeed * dt));
 }
 
 void render(sf::RenderWindow& window) {
