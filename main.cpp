@@ -23,17 +23,22 @@ sf::RectangleShape paddles[2];
 
 // Initialisation of objects needed for the game
 void init() {
+
+	// Set size and origin of paddles
 	for (sf::RectangleShape& p : paddles) {
 		p.setSize(paddleSize);
 		p.setOrigin(paddleSize / 2.f);
 	}
 
+	// Set size and origin of ball
 	ball.setRadius(ballRadius);
 	ball.setOrigin(ballRadius, ballRadius);
 
+	// Reset paddle position
 	paddles[0].setPosition(paddleOffsetWall + paddleSize.x / 2.f, gameHeight / 2.f);
 	paddles[1].setPosition(gameWidth - paddleOffsetWall - paddleSize.x / 2.f, gameHeight / 2.f);
 
+	// Reset ball position
 	ball.setPosition(gameWidth / 2.f, gameHeight / 2.f);
 
 }
