@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 
+// Array to hold the keys for players
 const sf::Keyboard::Key controls[4] = {
 	sf::Keyboard::A,    // Player1 UP
 	sf::Keyboard::Z,    // Player1 Down
@@ -20,6 +21,7 @@ const float time_step = 0.017f; // 60fps
 sf::CircleShape ball;
 sf::RectangleShape paddles[2];
 
+// Initialisation of objects needed for the game
 void init() {
 	for (sf::RectangleShape& p : paddles) {
 		p.setSize(paddleSize);
@@ -36,6 +38,7 @@ void init() {
 
 }
 
+// All games logic goes here
 void update(float dt) {
 	// handles paddle movement
 	float direction1 = 0.0f;
@@ -57,6 +60,7 @@ void update(float dt) {
 	paddles[1].move(sf::Vector2f(0.f, direction2 * paddleSpeed * dt));
 }
 
+// Draws everything to the window (screen) for the current frame
 void render(sf::RenderWindow& window) {
 	window.draw(paddles[0]);
 	window.draw(paddles[1]);
@@ -64,12 +68,14 @@ void render(sf::RenderWindow& window) {
 }
 
 
+// Main game loop: handles events, updates game state, and renders the game
 int main() {
 	sf::RenderWindow window(sf::VideoMode(gameWidth, gameHeight), "Pong");
 	
 
 	init();
 
+	// SFML clock to calculate dt (delta time)
 	sf::Clock clock;
 	while (window.isOpen()) {
 		sf::Event event;
@@ -83,6 +89,7 @@ int main() {
 		float dt = clock.restart().asSeconds();
 		update(dt);
 
+		// Draws everything to window do this every frame
 		window.clear(sf::Color::Black);
 		render(window);
 		window.display();
