@@ -1,5 +1,10 @@
 #include <SFML/Graphics.hpp>
 
+sf::Vector2f ball_velocity;
+bool is_player_serving = true;
+const float initial_velocity_x = 100.f; // Horizontal velocity
+const float initial_velocity_y = 60.f; // Vertical velocity
+
 // Array to hold the keys for players
 const sf::Keyboard::Key controls[4] = {
 	sf::Keyboard::A,    // Player1 UP
@@ -41,6 +46,7 @@ void init() {
 	// Reset ball position
 	ball.setPosition(gameWidth / 2.f, gameHeight / 2.f);
 
+	ball_velocity = { (is_player_serving ? initial_velocity_x : -initial_velocity_x), initial_velocity_y };
 }
 
 // All games logic goes here
@@ -63,6 +69,8 @@ void update(float dt) {
 		direction2++;
 	}
 	paddles[1].move(sf::Vector2f(0.f, direction2 * paddleSpeed * dt));
+
+	ball.move(ball_velocity * dt);
 }
 
 // Draws everything to the window (screen) for the current frame
