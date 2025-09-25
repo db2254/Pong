@@ -4,6 +4,7 @@ sf::Vector2f ball_velocity;
 bool is_player_serving = true;
 const float initial_velocity_x = 100.f; // Horizontal velocity
 const float initial_velocity_y = 60.f; // Vertical velocity
+const float velocity_multiplier = 1.1f; // How much the ball will speed up everytime it hits a paddle, here 10% every time.
 
 // Array to hold the keys for players
 const sf::Keyboard::Key controls[4] = {
@@ -49,6 +50,21 @@ void init() {
 	ball_velocity = { (is_player_serving ? initial_velocity_x : -initial_velocity_x), initial_velocity_y };
 }
 
+void reset() {
+	// Set size and origin of ball
+	ball.setRadius(ballRadius);
+	ball.setOrigin(ballRadius, ballRadius);
+
+	// Reset paddle position
+	paddles[0].setPosition(paddleOffsetWall + paddleSize.x / 2.f, gameHeight / 2.f);
+	paddles[1].setPosition(gameWidth - paddleOffsetWall - paddleSize.x / 2.f, gameHeight / 2.f);
+
+	// Reset ball position
+	ball.setPosition(gameWidth / 2.f, gameHeight / 2.f);
+
+	ball_velocity = { (is_player_serving ? initial_velocity_x : -initial_velocity_x), initial_velocity_y };
+}
+
 // All games logic goes here
 void update(float dt) {
 	// handles paddle movement
@@ -71,6 +87,29 @@ void update(float dt) {
 	paddles[1].move(sf::Vector2f(0.f, direction2 * paddleSpeed * dt));
 
 	ball.move(ball_velocity * dt);
+
+	// Check ball collision
+	const float bx = ball.getPosition().x;
+	const float by = ball.getPosition().y;
+	if (by > gameHeight) { // Bottom wall
+
+		ball_velocity.x *= velocity_multiplier;
+		ball_velocity.y *= -velocity_multiplier;
+		ball.move(sf::Vector2f(0.f, -10.f));
+	}
+	else if (by < 0) { // Top wall
+		ball_velocity.x *= velocity_multiplier;
+		ball_velocity.y *= -velocity_multiplier;
+		ball.move(sf::Vector2f(0.f, 10.f));
+	}
+	else if (bx > gameWidth) {
+		// Right wall
+		reset();
+	}
+	else if (bx < 0) {
+		// Left wall
+		reset();
+	}
 }
 
 // Draws everything to the window (screen) for the current frame
@@ -87,6 +126,7 @@ int main() {
 	
 
 	init();
+
 
 	// SFML clock to calculate dt (delta time)
 	sf::Clock clock;
