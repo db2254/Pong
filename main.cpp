@@ -77,6 +77,20 @@ void update(float dt) {
 	}
 	paddles[0].move(sf::Vector2f(0.f, direction1 * paddleSpeed * dt));
 
+	// Get the top and bottom  of left paddle 
+	float paddleTop = paddles[0].getPosition().y - paddleSize.y / 2.f;
+	float paddleBottom = paddles[0].getPosition().y + paddleSize.y / 2.f;
+
+	// Check if left paddle is out of the screen (top)
+	if (paddleTop < 0.f) {
+		paddles[0].setPosition(paddles[0].getPosition().x, paddleSize.y / 2.f);
+	}
+
+	// Check if left paddle is out of the screen (bottom)
+	if (paddleBottom > gameHeight) {
+		paddles[0].setPosition(paddles[0].getPosition().x, gameHeight - paddleSize.y / 2.f);
+	}
+
 	float direction2 = 0.0f;
 	if (sf::Keyboard::isKeyPressed(controls[2])) {
 		direction2--;
@@ -85,6 +99,20 @@ void update(float dt) {
 		direction2++;
 	}
 	paddles[1].move(sf::Vector2f(0.f, direction2 * paddleSpeed * dt));
+
+	// Get the top and bottom of the right paddle
+    float paddleTop2 = paddles[1].getPosition().y - paddleSize.y / 2.f;
+    float paddleBottom2 = paddles[1].getPosition().y + paddleSize.y / 2.f;
+
+    // Check if right paddle is out of the screen (top)
+    if (paddleTop2 < 0.f) {
+        paddles[1].setPosition(paddles[1].getPosition().x, paddleSize.y / 2.f);
+    }
+
+    // Check if right paddle is out of the screen (bottom)
+    if (paddleBottom2 > gameHeight) {
+        paddles[1].setPosition(paddles[1].getPosition().x, gameHeight - paddleSize.y / 2.f);
+    }
 
 	ball.move(ball_velocity * dt);
 
