@@ -102,6 +102,25 @@ void update(float dt) {
 		ball_velocity.y *= -velocity_multiplier;
 		ball.move(sf::Vector2f(0.f, 10.f));
 	}
+	else if (
+		// Ball is inline or behind paddle AND
+		bx < paddleSize.x + paddleOffsetWall &&
+		// Ball is below top edge of paddle AND
+		by > paddles[0].getPosition().y - (paddleSize.y * 0.5) &&
+		// Ball is above bottom edge of paddle
+		by < paddles[0].getPosition().y + (paddleSize.y * 0.5)) {
+		// bounce off left paddle
+		ball_velocity.x *= -velocity_multiplier;
+	}
+
+	// Ball collision with right paddle
+	else if (
+		bx > gameWidth - paddleSize.x - paddleOffsetWall &&
+		by > paddles[1].getPosition().y - (paddleSize.y * 0.5) &&
+		by < paddles[1].getPosition().y + (paddleSize.y * 0.5)) {
+		// bounce off right paddle
+		ball_velocity.x *= -velocity_multiplier;
+	}
 	else if (bx > gameWidth) {
 		// Right wall
 		reset();
