@@ -178,12 +178,12 @@ void update(float dt) {
 	}
 }
 
-// Draws everything to the window (screen) for the current frame
+// Draws everything to the window (screen) for the current frame (Paddles, ball, and score text)
 void render(sf::RenderWindow& window) {
 	window.draw(paddles[0]);
 	window.draw(paddles[1]);
 	window.draw(ball);
-	window.draw(text); // This line draws the score text
+	window.draw(text); 
 }
 
 
