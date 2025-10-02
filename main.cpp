@@ -171,10 +171,12 @@ void update(float dt) {
 	else if (bx > gameWidth) {
 		// Right wall
 		reset();
+		score[0]++;
 	}
 	else if (bx < 0) {
 		// Left wall
 		reset();
+		score[1]++;
 	}
 }
 
