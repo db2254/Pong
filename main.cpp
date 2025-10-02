@@ -1,6 +1,9 @@
 #include <SFML/Graphics.hpp>
 
 sf::Vector2f ball_velocity;
+int score[2] = { 0, 0 };
+sf::Font font;
+sf::Text text;
 bool is_player_serving = true;
 const float initial_velocity_x = 100.f; // Horizontal velocity
 const float initial_velocity_y = 60.f; // Vertical velocity
@@ -29,6 +32,15 @@ sf::RectangleShape paddles[2];
 
 // Initialisation of objects needed for the game
 void init() {
+
+	// Load font-face from res dir
+	font.loadFromFile("res/fonts/RobotoMono-Regular.ttf");
+
+	// Set text element to use font
+	text.setFont(font);
+
+	// Set the character size to 24 pixels
+	text.setCharacterSize(24);
 
 	// Set size and origin of paddles
 	for (sf::RectangleShape& p : paddles) {
@@ -67,6 +79,13 @@ void reset() {
 
 // All games logic goes here
 void update(float dt) {
+
+	// Update score text
+	text.setString(std::to_string(score[0]) + "-" + std::to_string(score[1]));
+
+	// Keep score text centered
+	text.setPosition((gameWidth * .5f) - (text.getLocalBounds().width * .5f), 0);
+
 	// handles paddle movement
 	float direction1 = 0.0f;
 	if (sf::Keyboard::isKeyPressed(controls[0])) {
@@ -164,6 +183,7 @@ void render(sf::RenderWindow& window) {
 	window.draw(paddles[0]);
 	window.draw(paddles[1]);
 	window.draw(ball);
+	window.draw(text); // This line draws the score text
 }
 
 
