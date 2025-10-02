@@ -4,7 +4,10 @@ sf::Vector2f ball_velocity;
 int score[2] = { 0, 0 };
 sf::Font font;
 sf::Text text;
+sf::Text aiText;
 bool is_player_serving = true;
+bool aiEnabled = true;
+bool isKeyPressed = false;
 const float initial_velocity_x = 100.f; // Horizontal velocity
 const float initial_velocity_y = 60.f; // Vertical velocity
 const float velocity_multiplier = 1.1f; // How much the ball will speed up everytime it hits a paddle, here 10% every time.
@@ -39,8 +42,13 @@ void init() {
 	// Set text element to use font
 	text.setFont(font);
 
+	// AI text element 
+	aiText.setFont(font);
+
 	// Set the character size to 24 pixels
 	text.setCharacterSize(24);
+
+	aiText.setCharacterSize(24);
 
 	// Set size and origin of paddles
 	for (sf::RectangleShape& p : paddles) {
@@ -86,6 +94,16 @@ void update(float dt) {
 	// Keep score text centered
 	text.setPosition((gameWidth * .5f) - (text.getLocalBounds().width * .5f), 0);
 
+	// Update AI status text
+	if (aiEnabled) {
+		aiText.setString("AI: Enabled");
+	}
+	else {
+		aiText.setString("AI: Disabled");
+	}
+	// Set aitext to bottom of game window
+	aiText.setPosition((gameWidth * 0.5f) - (aiText.getLocalBounds().width * 0.5f), gameHeight - 30); 
+
 	// handles paddle movement
 	float direction1 = 0.0f;
 	if (sf::Keyboard::isKeyPressed(controls[0])) {
@@ -110,36 +128,65 @@ void update(float dt) {
 		paddles[0].setPosition(paddles[0].getPosition().x, gameHeight - paddleSize.y / 2.f);
 	}
 
-	float direction2 = 0.0f;
-	if (sf::Keyboard::isKeyPressed(controls[2])) {
-		direction2--;
+	// Check if 'T' is pressed to toggle on the AI
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::T)) {
+		aiEnabled = !aiEnabled; // Toggle the AI 
+		isKeyPressed = true;
 	}
-	if (sf::Keyboard::isKeyPressed(controls[3])) {
-		direction2++;
+
+	// If the 'T' key is released, allow it to be pressed again
+	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::T)) {
+		isKeyPressed = false;  // Reset the flag when key is released
 	}
-	paddles[1].move(sf::Vector2f(0.f, direction2 * paddleSpeed * dt));
 
-	// Get the top and bottom of the right paddle
-    float paddleTop2 = paddles[1].getPosition().y - paddleSize.y / 2.f;
-    float paddleBottom2 = paddles[1].getPosition().y + paddleSize.y / 2.f;
+	// AI logic 
+	if (aiEnabled) {
+		float ballY = ball.getPosition().y;  // Used to get ball position
+		float aiPaddle = paddles[1].getPosition().y; // Selects the right paddle for AI
+		float aiSpeed = paddleSpeed * 0.80; // Adjust AI speed 
 
-    // Check if right paddle is out of the screen (top)
-    if (paddleTop2 < 0.f) {
-        paddles[1].setPosition(paddles[1].getPosition().x, paddleSize.y / 2.f);
-    }
+		// AI paddle moves towards the ball's Y position
+		if (ballY < aiPaddle - paddleSize.y / 2.f) {
+			paddles[1].move(sf::Vector2f(0.f, -aiSpeed * dt));
+		}
+		else if (ballY > aiPaddle + paddleSize.y / 2.f) {
+			paddles[1].move(sf::Vector2f(0.f, aiSpeed * dt));
+		}
+	}
+	else {
+		// Player 2 control logic (manual movement)
+		float direction2 = 0.0f;
+		if (sf::Keyboard::isKeyPressed(controls[2])) {
+			direction2--;
+		}
+		if (sf::Keyboard::isKeyPressed(controls[3])) {
+			direction2++;
+		}
+		paddles[1].move(sf::Vector2f(0.f, direction2 * paddleSpeed * dt));
 
-    // Check if right paddle is out of the screen (bottom)
-    if (paddleBottom2 > gameHeight) {
-        paddles[1].setPosition(paddles[1].getPosition().x, gameHeight - paddleSize.y / 2.f);
-    }
+		// Get the top and bottom of the right paddle
+		float paddleTop2 = paddles[1].getPosition().y - paddleSize.y / 2.f;
+		float paddleBottom2 = paddles[1].getPosition().y + paddleSize.y / 2.f;
 
+		// Check if right paddle is out of the screen (top)
+		if (paddleTop2 < 0.f) {
+			paddles[1].setPosition(paddles[1].getPosition().x, paddleSize.y / 2.f);
+		}
+
+		// Check if right paddle is out of the screen (bottom)
+		if (paddleBottom2 > gameHeight) {
+			paddles[1].setPosition(paddles[1].getPosition().x, gameHeight - paddleSize.y / 2.f);
+		}
+	}
+
+	// Ball movement logic
 	ball.move(ball_velocity * dt);
 
-	// Check ball collision
+	// Ball collision logic with top and bottom walls
 	const float bx = ball.getPosition().x;
 	const float by = ball.getPosition().y;
-	if (by > gameHeight) { // Bottom wall
 
+	if (by > gameHeight) { // Bottom wall
 		ball_velocity.x *= velocity_multiplier;
 		ball_velocity.y *= -velocity_multiplier;
 		ball.move(sf::Vector2f(0.f, -10.f));
@@ -149,32 +196,31 @@ void update(float dt) {
 		ball_velocity.y *= -velocity_multiplier;
 		ball.move(sf::Vector2f(0.f, 10.f));
 	}
-	else if (
-		// Ball is inline or behind paddle AND
+
+	// Ball collision with left paddle
+	if (
 		bx < paddleSize.x + paddleOffsetWall &&
-		// Ball is below top edge of paddle AND
 		by > paddles[0].getPosition().y - (paddleSize.y * 0.5) &&
-		// Ball is above bottom edge of paddle
 		by < paddles[0].getPosition().y + (paddleSize.y * 0.5)) {
 		// bounce off left paddle
 		ball_velocity.x *= -velocity_multiplier;
 	}
 
 	// Ball collision with right paddle
-	else if (
+	if (
 		bx > gameWidth - paddleSize.x - paddleOffsetWall &&
 		by > paddles[1].getPosition().y - (paddleSize.y * 0.5) &&
 		by < paddles[1].getPosition().y + (paddleSize.y * 0.5)) {
 		// bounce off right paddle
 		ball_velocity.x *= -velocity_multiplier;
 	}
-	else if (bx > gameWidth) {
-		// Right wall
+
+	// Check for score conditions
+	if (bx > gameWidth) { // Right wall
 		reset();
 		score[0]++;
 	}
-	else if (bx < 0) {
-		// Left wall
+	else if (bx < 0) { // Left wall
 		reset();
 		score[1]++;
 	}
@@ -186,6 +232,7 @@ void render(sf::RenderWindow& window) {
 	window.draw(paddles[1]);
 	window.draw(ball);
 	window.draw(text); 
+	window.draw(aiText);
 }
 
 
